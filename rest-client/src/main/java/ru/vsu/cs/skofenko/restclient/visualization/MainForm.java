@@ -16,6 +16,7 @@ import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class MainForm extends JFrame {
     private class BoardPanel extends JPanel {
@@ -127,26 +128,28 @@ public class MainForm extends JFrame {
     private JLabel player2Label;
     private JLabel player1Label;
 
-    private IGameLogic logic;
+    private final ResourceBundle bundle;
     private static final JLabel loadingIcon = new JLabel(new ImageIcon(MainForm.class.getResource("/static/LoadingIcon.gif")));
+    private IGameLogic logic;
 
-    public MainForm() {
-        this.setTitle(StringConstants.APP_TITLE);
+    public MainForm(Locale locale) {
+        bundle = ResourceBundle.getBundle("interface", locale);
+        this.setTitle(bundle.getString("app-title"));
         this.setContentPane(mainPanel);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.pack();
 
-        player1Label.setText(StringConstants.PLAYER1_NAME);
-        player2Label.setText(StringConstants.PLAYER2_NAME);
+        player1Label.setText(bundle.getString("player1-name"));
+        player2Label.setText(bundle.getString("player2-name"));
 
-        comboBox.addItem(StringConstants.BOX_SINGLE);
-        comboBox.addItem(StringConstants.BOX_MULTI);
+        comboBox.addItem(bundle.getString("box-single"));
+        comboBox.addItem(bundle.getString("box-multi"));
 
         setSize(640, 480);
         setExtendedState(MAXIMIZED_BOTH);
 
         logic = new GameLogic();
-        stateLabel.setText(getLoweredWithoutFirst(logic.getGameState().name()));
+        stateLabel.setText(bundle.getString(logic.getGameState().name().toLowerCase()));
 
         boardPanelCont.setLayout(new GridBagLayout());
         SquarePanel square = new SquarePanel();
@@ -185,7 +188,7 @@ public class MainForm extends JFrame {
                         logic = new GameLogic();
                         MainForm.this.repaint();
                     } else {
-                        stateLabel.setText(StringConstants.WAITING_LABEL);
+                        stateLabel.setText(bundle.getString("waiting-label"));
                         setPanelsVisibility(false);
                         logic = new RestClient(MainForm.this::returnToSinglePlayer, MainForm.this::repaint);
                         setPanelsVisibility(true);
@@ -216,16 +219,17 @@ public class MainForm extends JFrame {
     }
 
     public ChessPiece showDialogWindow() {
+        String[] possibilities = bundle.getString("option-possibilities").split("[ \\t]+");
         while (true) {
             try {
                 String str = (String) JOptionPane.showInputDialog(
                         this,
-                        StringConstants.OPTION_MESSAGE,
-                        StringConstants.OPTION_TITLE,
+                        bundle.getString("option-mes"),
+                        bundle.getString("option-title"),
                         JOptionPane.PLAIN_MESSAGE,
                         null,
-                        StringConstants.OPTION_POSSIBILITIES,
-                        StringConstants.OPTION_POSSIBILITIES[0]);
+                        possibilities,
+                        possibilities[0]);
 
                 return ChessPiece.getChessPieceFromStr(str, logic.getNowTurn());
             } catch (IllegalArgumentException ignored) {
@@ -233,14 +237,11 @@ public class MainForm extends JFrame {
         }
     }
 
-    public void returnToSinglePlayer(String message) {
+    public void returnToSinglePlayer(String key) {
         logic = null;
         comboBox.setSelectedIndex(0);
-        JOptionPane.showMessageDialog(this, message);
-    }
-
-    private static String getLoweredWithoutFirst(String str) {
-        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+        JOptionPane.showMessageDialog(this, bundle.getString(key), bundle.getString("message"),
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     @Override
@@ -252,7 +253,7 @@ public class MainForm extends JFrame {
             player2Panel.setBackground(Color.RED);
             player1Panel.setBackground(Color.LIGHT_GRAY);
         }
-        stateLabel.setText(getLoweredWithoutFirst(logic.getGameState().name()));
+        stateLabel.setText(bundle.getString(logic.getGameState().name().toLowerCase()));
         super.repaint();
     }
 

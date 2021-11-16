@@ -12,7 +12,6 @@ import ru.vsu.cs.skofenko.logic.model.BoardCell;
 import ru.vsu.cs.skofenko.logic.model.GameState;
 import ru.vsu.cs.skofenko.logic.model.IGameLogic;
 import ru.vsu.cs.skofenko.logic.model.LogicState;
-import ru.vsu.cs.skofenko.restclient.visualization.StringConstants;
 
 import javax.swing.*;
 import java.util.Objects;
@@ -35,7 +34,7 @@ public class RestClient implements IGameLogic {
         try {
             SESSION_ID = TEMPLATE.postForObject(String.format("%s/logic", SERVER_URL), null, Long.class);
         } catch (HttpStatusCodeException | ResourceAccessException e) {
-            returnToSingleFunc.accept(StringConstants.NO_CONNECTION);
+            returnToSingleFunc.accept("no-connection");
             throw e;
         }
 
@@ -56,10 +55,10 @@ public class RestClient implements IGameLogic {
         try {
             logicState = TEMPLATE.getForObject(String.format("%s/logic/{0}", SERVER_URL), LogicState.class, SESSION_ID);
         } catch (HttpStatusCodeException e) {
-            returnToSingleFunc.accept(StringConstants.PLAYER_LEFT);
+            returnToSingleFunc.accept("player-left");
             timer.cancel();
         } catch (ResourceAccessException e) {
-            returnToSingleFunc.accept(StringConstants.NO_CONNECTION);
+            returnToSingleFunc.accept("no-connection");
             timer.cancel();
             throw e;
         }
@@ -100,10 +99,10 @@ public class RestClient implements IGameLogic {
             updateLogicState();
             return Boolean.TRUE.equals(response.getBody());
         } catch (HttpStatusCodeException e) {
-            returnToSingleFunc.accept(StringConstants.PLAYER_LEFT);
+            returnToSingleFunc.accept("player-left");
             timer.cancel();
         } catch (ResourceAccessException e) {
-            returnToSingleFunc.accept(StringConstants.NO_CONNECTION);
+            returnToSingleFunc.accept("no-connection");
             timer.cancel();
             throw e;
         }
@@ -125,10 +124,10 @@ public class RestClient implements IGameLogic {
             updateLogicState();
             return Boolean.TRUE.equals(response.getBody());
         } catch (HttpStatusCodeException e) {
-            returnToSingleFunc.accept(StringConstants.PLAYER_LEFT);
+            returnToSingleFunc.accept("player-left");
             timer.cancel();
         } catch (ResourceAccessException e) {
-            returnToSingleFunc.accept(StringConstants.NO_CONNECTION);
+            returnToSingleFunc.accept("no-connection");
             timer.cancel();
             throw e;
         }
@@ -139,7 +138,7 @@ public class RestClient implements IGameLogic {
         try {
             TEMPLATE.delete(String.format("%s/logic/{0}", SERVER_URL), SESSION_ID);
         } catch (HttpStatusCodeException | ResourceAccessException e) {
-            returnToSingleFunc.accept(StringConstants.NO_CONNECTION);
+            returnToSingleFunc.accept("no-connection");
             throw e;
         } finally {
             timer.cancel();
