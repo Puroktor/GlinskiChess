@@ -1,15 +1,18 @@
 package ru.vsu.cs.skofenko.restserver.entity;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.springframework.lang.Nullable;
 import ru.vsu.cs.skofenko.logic.chesspieces.ChessColor;
 import ru.vsu.cs.skofenko.logic.chesspieces.ChessPiece;
 import ru.vsu.cs.skofenko.logic.geometry.Coordinate;
 import ru.vsu.cs.skofenko.logic.model.*;
 
 @RequiredArgsConstructor
-public class GamePlayerLogic implements IGameLogic {
-    private final GameLogic logic;
+@Setter
+public class MultiPlayerLogic implements IGameLogic {
     private final ChessColor color;
+    private GameLogic logic;
 
     @Override
     public GameState getGameState() {
@@ -62,7 +65,12 @@ public class GamePlayerLogic implements IGameLogic {
         }
     }
 
+    @Nullable
     public LogicState getLogicState() {
-        return new LogicState(getNowTurn(), getGameState(), getSelectedCord(), getBoard());
+        if (logic == null) {
+            return null;
+        } else {
+            return new LogicState(getNowTurn(), getGameState(), getSelectedCord(), getBoard());
+        }
     }
 }

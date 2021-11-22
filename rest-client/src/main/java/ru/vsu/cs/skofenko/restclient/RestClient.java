@@ -38,6 +38,17 @@ public class RestClient implements IGameLogic {
             throw e;
         }
 
+        updateLogicState();
+        while (logicState == null) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            updateLogicState();
+        }
+        SwingUtilities.invokeLater(repaintFunc);
+
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -48,7 +59,6 @@ public class RestClient implements IGameLogic {
                 }
             }
         }, 1000, 1000);
-        updateLogicState();
     }
 
     private void updateLogicState() {

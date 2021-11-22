@@ -1,7 +1,7 @@
 package ru.vsu.cs.skofenko.restserver.repository;
 
 import org.springframework.stereotype.Repository;
-import ru.vsu.cs.skofenko.restserver.entity.GamePlayerLogic;
+import ru.vsu.cs.skofenko.restserver.entity.MultiPlayerLogic;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -9,14 +9,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 public class LogicRepository {
-    private final Map<Long, GamePlayerLogic> logicMap = new ConcurrentHashMap<>();
+    private final Map<Long, MultiPlayerLogic> logicMap = new ConcurrentHashMap<>();
 
-    public GamePlayerLogic saveNewLogic(Long clientID, GamePlayerLogic logic) {
+    public MultiPlayerLogic saveNewLogic(Long clientID, MultiPlayerLogic logic) {
         return logicMap.put(clientID, logic);
     }
 
-    public GamePlayerLogic getLogicByClientID(Long clientID) {
-        GamePlayerLogic logic = logicMap.get(clientID);
+    public MultiPlayerLogic getLogicByClientID(Long clientID) {
+        MultiPlayerLogic logic = logicMap.get(clientID);
         if (logic != null) {
             return logic;
         } else {
@@ -24,7 +24,7 @@ public class LogicRepository {
         }
     }
 
-    public GamePlayerLogic removeLogicByID(Long clientID) {
+    public MultiPlayerLogic removeLogicByID(Long clientID) {
         return logicMap.remove(clientID);
     }
 }
