@@ -133,7 +133,7 @@ public class MainForm extends JFrame {
     private IGameLogic logic;
 
     public MainForm(Locale locale) {
-        bundle = ResourceBundle.getBundle("interface", locale);
+        bundle = ResourceBundle.getBundle("main-form", locale);
         this.setTitle(bundle.getString("app-title"));
         this.setContentPane(mainPanel);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -210,7 +210,7 @@ public class MainForm extends JFrame {
 
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                if (comboBox.getSelectedIndex() == 1) {
+                if (logic instanceof RestClient) {
                     ((RestClient) logic).terminate();
                 }
             }

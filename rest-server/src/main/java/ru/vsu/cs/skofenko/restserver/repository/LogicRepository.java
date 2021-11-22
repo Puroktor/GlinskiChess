@@ -3,13 +3,13 @@ package ru.vsu.cs.skofenko.restserver.repository;
 import org.springframework.stereotype.Repository;
 import ru.vsu.cs.skofenko.restserver.entity.GamePlayerLogic;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 public class LogicRepository {
-    private final Map<Long, GamePlayerLogic> logicMap = new HashMap<>();
+    private final Map<Long, GamePlayerLogic> logicMap = new ConcurrentHashMap<>();
 
     public GamePlayerLogic saveNewLogic(Long clientID, GamePlayerLogic logic) {
         return logicMap.put(clientID, logic);
