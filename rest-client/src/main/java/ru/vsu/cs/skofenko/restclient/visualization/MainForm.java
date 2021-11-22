@@ -182,6 +182,7 @@ public class MainForm extends JFrame {
                 if (logic instanceof RestClient) {
                     ((RestClient) logic).terminate();
                 }
+                logic = null;
                 newLogicThread = new Thread(() -> {
                     if (jComboBox.getSelectedIndex() == 0) {
                         setPanelsVisibility(true);
@@ -190,7 +191,9 @@ public class MainForm extends JFrame {
                     } else {
                         stateLabel.setText(bundle.getString("waiting-label"));
                         setPanelsVisibility(false);
-                        logic = new RestClient(MainForm.this::returnToSinglePlayer, MainForm.this::repaint);
+                        RestClient restClient = new RestClient(MainForm.this::returnToSinglePlayer);
+                        logic = restClient;
+                        restClient.waitForOtherPlayer(MainForm.this::repaint);
                         setPanelsVisibility(true);
                     }
                 });
@@ -238,7 +241,6 @@ public class MainForm extends JFrame {
     }
 
     public void returnToSinglePlayer(String key) {
-        logic = null;
         comboBox.setSelectedIndex(0);
         JOptionPane.showMessageDialog(this, bundle.getString(key), bundle.getString("message"),
                 JOptionPane.INFORMATION_MESSAGE);
@@ -284,11 +286,11 @@ public class MainForm extends JFrame {
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(1, 2, new Insets(10, 5, 10, 5), -1, -1));
         player2Panel.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label1 = new JLabel();
-        Font label1Font = this.$$$getFont$$$("Arial Black", -1, 18, label1.getFont());
-        if (label1Font != null) label1.setFont(label1Font);
-        label1.setText("Player 2");
-        panel1.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        player2Label = new JLabel();
+        Font player2LabelFont = this.$$$getFont$$$("Arial Black", -1, 18, player2Label.getFont());
+        if (player2LabelFont != null) player2Label.setFont(player2LabelFont);
+        player2Label.setText("");
+        panel1.add(player2Label, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         panel2.setBackground(new Color(-16777216));
@@ -309,11 +311,11 @@ public class MainForm extends JFrame {
         final JPanel panel4 = new JPanel();
         panel4.setLayout(new GridLayoutManager(1, 2, new Insets(10, 5, 10, 5), -1, -1));
         player1Panel.add(panel4, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(-1, 50), new Dimension(-1, 50), new Dimension(-1, 50), 0, false));
-        final JLabel label2 = new JLabel();
-        Font label2Font = this.$$$getFont$$$("Arial Black", -1, 18, label2.getFont());
-        if (label2Font != null) label2.setFont(label2Font);
-        label2.setText("Player 1");
-        panel4.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        player1Label = new JLabel();
+        Font player1LabelFont = this.$$$getFont$$$("Arial Black", -1, 18, player1Label.getFont());
+        if (player1LabelFont != null) player1Label.setFont(player1LabelFont);
+        player1Label.setText("");
+        panel4.add(player1Label, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel5 = new JPanel();
         panel5.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         panel5.setBackground(new Color(-1));
@@ -352,5 +354,4 @@ public class MainForm extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
-
 }

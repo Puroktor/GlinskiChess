@@ -29,7 +29,7 @@ public class RestClient implements IGameLogic {
     private final Consumer<String> returnToSingleFunc;
     private LogicState logicState;
 
-    public RestClient(Consumer<String> returnToSingleFunc, Runnable repaintFunc) {
+    public RestClient(Consumer<String> returnToSingleFunc) {
         this.returnToSingleFunc = returnToSingleFunc;
         try {
             SESSION_ID = TEMPLATE.postForObject(String.format("%s/logic", SERVER_URL), null, Long.class);
@@ -37,13 +37,16 @@ public class RestClient implements IGameLogic {
             returnToSingleFunc.accept("no-connection");
             throw e;
         }
+    }
 
+    public void waitForOtherPlayer(Runnable repaintFunc) {
         updateLogicState();
         while (logicState == null) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                terminate();
+                return;
             }
             updateLogicState();
         }

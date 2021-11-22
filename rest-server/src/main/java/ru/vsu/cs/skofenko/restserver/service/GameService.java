@@ -47,6 +47,9 @@ public class GameService {
         if (key % 2 == 0) {
             repository.removeLogicByID(key);
             repository.removeLogicByID(key + 1);
+            if (clientID == key + 1) {
+                clientID--;
+            }
         } else {
             repository.removeLogicByID(key - 1);
             repository.removeLogicByID(key);
