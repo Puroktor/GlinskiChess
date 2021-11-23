@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 public class RestClient implements IGameLogic {
     public static final String SERVER_URL = "http://localhost:8080/api";
 
-    private static final RestTemplate TEMPLATE = new RestTemplate();
+    private final RestTemplate TEMPLATE = new RestTemplate();
 
     private final Long SESSION_ID;
     private final Timer timer = new Timer();
