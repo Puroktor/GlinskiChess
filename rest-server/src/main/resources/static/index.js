@@ -79,28 +79,8 @@ function connect() {
         $(window).on('unload', () => {
             navigator.sendBeacon(`${BASE_URL}/logic/${id}`);
         });
-        waitForOtherPlayer();
+        updateGameState();
     }).fail(() => location.reload());
-}
-
-function waitForOtherPlayer() {
-    getGameState();
-    if (gameState == null) {
-        setTimeout(waitForOtherPlayer, 1000);
-    } else {
-        initCanvas();
-        if (gameState['nowTurn'] === 'WHITE') {
-            $('#whiteLabel').css('border-color', 'darkred');
-        } else {
-            $('#blackLabel').css('border-color', 'darkred');
-        }
-        paintBoard();
-        $(window).resize(paintBoard);
-        setInterval(() => {
-            getGameState();
-            paintBoard();
-        }, 1000);
-    }
 }
 
 function initCanvas() {
@@ -109,6 +89,14 @@ function initCanvas() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
     $(canvas).click(canvasClick);
+
+    if (gameState['nowTurn'] === 'WHITE') {
+        $('#whiteLabel').css('border-color', 'darkred');
+    } else {
+        $('#blackLabel').css('border-color', 'darkred');
+    }
+    $(window).resize(paintBoard);
+    setInterval(() => updateGameState(), 1000);
 }
 
 function canvasClick(e) {
@@ -122,35 +110,68 @@ function canvasClick(e) {
     }
 }
 
-function getGameState() {
-    $.ajax({
-        url: `${BASE_URL}/logic/${id}`, method: 'GET', async: false
-    }).done((data) => {
+function updateGameState() {
+    $.get(`${BASE_URL}/logic/${id}`).done((data) => {
         if (Object.keys(data).length !== 0) {
             gameState = data;
+            if (canvas == null) {
+                initCanvas();
+            }
+            paintBoard();
+        } else {
+            setTimeout(updateGameState, 1000);
         }
-    }).fail(() => location.reload());
+    }).fail(() => handleFail());
 }
 
 function sendClick(i, j) {
+    let half = N / 2 | 0;
     $.ajax({
         url: `${BASE_URL}/select/${id}`,
         type: 'PUT',
         contentType: 'application/json',
         data: JSON.stringify({
             'i': i, 'j': j,
+            'r': i - half,
+            'q': j - half - Math.min(0, i - half)
         })
     }).done((response) => {
         if (response) {
-            choosePiece();
+            let piece = choosePiece();
+            promotePawn(piece);
+        } else {
+            updateGameState();
         }
-        getGameState();
-        paintBoard();
-    }).fail(() => location.reload());
+    }).fail(() => handleFail());
+}
+
+function promotePawn(piece) {
+    $.ajax({
+        url: `${BASE_URL}/promote/${id}`,
+        type: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            'type': piece,
+            'color': gameState['nowTurn']
+        }),
+    }).done(() => updateGameState())
+        .fail(() => handleFail());
+}
+
+function handleFail() {
+    location.reload();
+    alert("Second player has left");
 }
 
 function choosePiece() {
-
+    let piece;
+    do {
+        piece = prompt('Queen, Knight, Rook, Bishop?');
+        if (piece != null) {
+            piece = piece.trim().toLowerCase();
+        }
+    } while (piece !== 'queen' && piece !== 'knight' && piece !== 'rook' && piece !== 'bishop');
+    return piece;
 }
 
 function initIcons() {
