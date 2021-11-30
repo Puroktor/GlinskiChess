@@ -22,8 +22,7 @@ import java.util.function.Consumer;
 public class RestClient implements IGameLogic {
     public static final String SERVER_URL = "http://localhost:8080/api";
 
-    private final RestTemplate TEMPLATE = new RestTemplate();
-
+    private final RestTemplate template = new RestTemplate();
     private final Long SESSION_ID;
     private final Timer timer = new Timer();
     private final Consumer<String> returnToSingleFunc;
@@ -32,7 +31,7 @@ public class RestClient implements IGameLogic {
     public RestClient(Consumer<String> returnToSingleFunc) {
         this.returnToSingleFunc = returnToSingleFunc;
         try {
-            SESSION_ID = TEMPLATE.postForObject(String.format("%s/logic", SERVER_URL), null, Long.class);
+            SESSION_ID = template.postForObject(String.format("%s/logic", SERVER_URL), null, Long.class);
         } catch (HttpStatusCodeException | ResourceAccessException e) {
             returnToSingleFunc.accept("no-connection");
             throw e;
@@ -66,7 +65,7 @@ public class RestClient implements IGameLogic {
 
     private void updateLogicState() {
         try {
-            logicState = TEMPLATE.getForObject(String.format("%s/logic/{0}", SERVER_URL), LogicState.class, SESSION_ID);
+            logicState = template.getForObject(String.format("%s/logic/{0}", SERVER_URL), LogicState.class, SESSION_ID);
         } catch (HttpStatusCodeException e) {
             returnToSingleFunc.accept("player-left");
             timer.cancel();
@@ -100,7 +99,7 @@ public class RestClient implements IGameLogic {
     @Override
     public boolean selectPiece(Coordinate coordinate) {
         try {
-            ResponseEntity<Boolean> response = TEMPLATE.exchange(
+            ResponseEntity<Boolean> response = template.exchange(
                     String.format("%s/select/{0}", SERVER_URL),
                     HttpMethod.PUT,
                     getHttpEntity(coordinate),
@@ -125,7 +124,7 @@ public class RestClient implements IGameLogic {
     @Override
     public boolean promotePawn(ChessPiece piece) {
         try {
-            ResponseEntity<Boolean> response = TEMPLATE.exchange(
+            ResponseEntity<Boolean> response = template.exchange(
                     String.format("%s/promote/{0}", SERVER_URL),
                     HttpMethod.PUT,
                     getHttpEntity(piece),
@@ -149,7 +148,7 @@ public class RestClient implements IGameLogic {
 
     public void terminate() {
         try {
-            TEMPLATE.delete(String.format("%s/logic/{0}", SERVER_URL), SESSION_ID);
+            template.postForObject(String.format("%s/logic/{0}", SERVER_URL), null, Void.class, SESSION_ID);
         } catch (HttpStatusCodeException | ResourceAccessException e) {
             returnToSingleFunc.accept("no-connection");
             throw e;

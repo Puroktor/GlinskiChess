@@ -1,12 +1,52 @@
-body{
-  background: rgb(187, 187, 187);
+body {
+    font-family: "Arial Black", serif;
+    font-size: 16px;
+    background: #D18B47;
 }
 
-#canvas {
+#leftPanel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: absolute;
-    top:0;
-    bottom: 0;
+    top: 0;
     left: 0;
+    width: calc(100vw - 137px);
+    height: 100vh;
+    margin: 0;
+    background: rgb(195, 195, 195);
+}
+
+#rightPanel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: column;
+    text-align: center;
+    position: absolute;
+    top: 0;
     right: 0;
-    margin:auto;
+    width: 135px;
+    height: 100vh;
+    margin: 0;
+    background: rgb(185, 185, 185);
+}
+
+#gameState {
+    color: darkred;
+}
+
+.label {
+    padding: 4px;
+    border-style: solid;
+}
+
+#blackLabel {
+    color: black;
+    border-color: black;
+}
+
+#whiteLabel {
+    color: white;
+    border-color: white;
 }

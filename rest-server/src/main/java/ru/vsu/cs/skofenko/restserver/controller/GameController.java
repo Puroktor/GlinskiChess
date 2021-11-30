@@ -35,7 +35,7 @@ public class GameController {
         return gameService.promotePawn(key, piece);
     }
 
-    @DeleteMapping("/logic/{key}")
+    @PostMapping("/logic/{key}")
     public void terminate(@PathVariable long key) {
         gameService.terminate(key);
     }

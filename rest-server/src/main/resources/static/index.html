@@ -1,13 +1,20 @@
 <!DOCTYPE html>
-<html lang="ru">
-	<head>
-		<meta charset="utf-8">
-		<title>Glinski chess</title>
-		<link rel="stylesheet" href="index.css">
-		<script type="text/javascript" src="jquery-3.6.0.min.js"></script>
-	</head>
-	<body>
-		<canvas width="1280px" height="720px" id="canvas"></canvas>
-		<script type="text/javascript" src="index.js"></script>
-	</body>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Glinski chess</title>
+    <link rel="stylesheet" href="index.css">
+    <script type="text/javascript" src="jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div id="leftPanel">
+    <img id="loadingImg" src="icons/LoadingIcon.gif" alt="Loading..."/>
+</div>
+<div id="rightPanel">
+    <p class="label" id="blackLabel">Black player</p>
+    <p id="gameState">Waiting</p>
+    <p class="label" id="whiteLabel">White player</p>
+</div>
+<script type="text/javascript" src="index.js"></script>
+</body>
 </html>
