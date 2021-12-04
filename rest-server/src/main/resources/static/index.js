@@ -1,4 +1,3 @@
-const BASE_URL = 'http://127.0.0.1:8080/api';
 let id, gameState;
 
 const N = 11;
@@ -73,11 +72,11 @@ function normalizeStr(str) {
 
 function connect() {
     $.ajax({
-        url: `${BASE_URL}/logic`, type: 'POST', dataType: 'text'
+        url: 'api/logic', type: 'POST', dataType: 'text'
     }).done((data) => {
         id = data;
         $(window).on('unload', () => {
-            navigator.sendBeacon(`${BASE_URL}/logic/${id}`);
+            navigator.sendBeacon(`api/logic/${id}`);
         });
         updateGameState();
     }).fail(() => location.reload());
@@ -111,7 +110,7 @@ function canvasClick(e) {
 }
 
 function updateGameState() {
-    $.get(`${BASE_URL}/logic/${id}`).done((data) => {
+    $.get(`api/logic/${id}`).done((data) => {
         if (Object.keys(data).length !== 0) {
             gameState = data;
             if (canvas == null) {
@@ -127,7 +126,7 @@ function updateGameState() {
 function sendClick(i, j) {
     let half = N / 2 | 0;
     $.ajax({
-        url: `${BASE_URL}/select/${id}`,
+        url: `api/select/${id}`,
         type: 'PUT',
         contentType: 'application/json',
         data: JSON.stringify({
@@ -147,7 +146,7 @@ function sendClick(i, j) {
 
 function promotePawn(piece) {
     $.ajax({
-        url: `${BASE_URL}/promote/${id}`,
+        url: `api/promote/${id}`,
         type: 'PUT',
         contentType: 'application/json',
         data: JSON.stringify({
