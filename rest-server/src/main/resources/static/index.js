@@ -14,8 +14,6 @@ function paintBoard() {
     stateLabel.text(normalizeStr(gameState['gameState']));
     const colors = ['#FFCE9E', '#E8AB6F', '#D18B47'];
     let size = updateSize();
-    let selectedI = gameState['selectedCoordinate']['i'];
-    let selectedJ = gameState['selectedCoordinate']['j'];
     let half = N / 2 | 0;
     let count = 200;
     for (let r = -half; r <= half; r++) {
@@ -32,15 +30,19 @@ function paintBoard() {
                     centerY + Math.round(size * Math.sin(k * 2 * Math.PI / 6)));
             }
             let cell = gameState['board'][i][j];
-            if (selectedI === i && selectedJ === j) {
-                ctx.fillStyle = '#ffff00';
-            } else if (cell['capturable'] === true) {
-                ctx.fillStyle = '#ff0000';
-            } else {
-                ctx.fillStyle = colors[count % 3];
+            switch (cell['cellType']) {
+                case 'SELECTED':
+                    ctx.fillStyle = '#ffff00';
+                    break;
+                case 'CAPTURABLE':
+                    ctx.fillStyle = '#ff0000';
+                    break;
+                default:
+                    ctx.fillStyle = colors[count % 3];
+                    break;
             }
             ctx.fill(paths[i][j]);
-            if (cell['reachable'] === true) {
+            if (cell['cellType'] === 'REACHABLE') {
                 paintReachable(centerX, centerY, size);
             }
             if (cell['piece'] != null) {
