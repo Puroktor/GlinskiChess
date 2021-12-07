@@ -15,6 +15,9 @@ import javax.swing.plaf.FontUIResource;
 import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -40,7 +43,6 @@ public class MainForm extends JFrame {
             }
             int half = IGameLogic.N / 2;
             int count = 200;
-            Coordinate selectedCord = logic.getSelectedCord();
             BoardCell[][] boardCells = logic.getBoard();
             for (int r = -half; r <= half; r++) {
                 for (int q = -half; q <= half; q++) {
@@ -59,15 +61,20 @@ public class MainForm extends JFrame {
                         board[cord.getI()][cord.getJ()].addPoint(centerX + (int) Math.round(size * Math.cos(k * 2 * Math.PI / 6)),
                                 centerY + (int) Math.round(size * Math.sin(k * 2 * Math.PI / 6)));
                     }
-                    if (cord.equals(selectedCord)) {
-                        paintPolygon(board[cord.getI()][cord.getJ()], gr, Color.YELLOW);
-                    } else if (cell.isCapturable()) {
-                        paintPolygon(board[cord.getI()][cord.getJ()], gr, Color.RED);
-                    } else {
-                        paintPolygon(board[cord.getI()][cord.getJ()], gr, colors[(count) % 3]);
-                    }
-                    if (cell.isReachable()) {
-                        drawReachable(gr, centerX, centerY, size / 2);
+                    switch (cell.getCellType()) {
+                        case SELECTED:
+                            paintPolygon(board[cord.getI()][cord.getJ()], gr, Color.YELLOW);
+                            break;
+                        case REACHABLE:
+                            paintPolygon(board[cord.getI()][cord.getJ()], gr, colors[(count) % 3]);
+                            drawReachable(gr, centerX, centerY, size / 2);
+                            break;
+                        case CAPTURABLE:
+                            paintPolygon(board[cord.getI()][cord.getJ()], gr, Color.RED);
+                            break;
+                        default:
+                            paintPolygon(board[cord.getI()][cord.getJ()], gr, colors[(count) % 3]);
+                            break;
                     }
                     drawChessPiece(gr, cell.getPiece(), centerX, centerY);
                 }
@@ -223,6 +230,13 @@ public class MainForm extends JFrame {
 
     public ChessPiece showDialogWindow() {
         String[] possibilities = bundle.getString("option-possibilities").split("[ \\t]+");
+        ResourceBundle engBundle = ResourceBundle.getBundle("main-form", new ResourceBundle.Control() {
+            @Override
+            public List<Locale> getCandidateLocales(String name, Locale locale) {
+                return Collections.singletonList(Locale.ROOT);
+            }
+        });
+        String[] engPossibilities = engBundle.getString("option-possibilities").split("[ \\t]+");
         while (true) {
             try {
                 String str = (String) JOptionPane.showInputDialog(
@@ -234,8 +248,9 @@ public class MainForm extends JFrame {
                         possibilities,
                         possibilities[0]);
 
-                return ChessPiece.getChessPieceFromStr(str, logic.getNowTurn());
-            } catch (IllegalArgumentException ignored) {
+                return ChessPiece.getChessPieceFromStr(
+                        engPossibilities[Arrays.asList(possibilities).indexOf(str)], logic.getNowTurn());
+            } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException ignored) {
             }
         }
     }

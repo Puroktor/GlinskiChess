@@ -87,11 +87,6 @@ public class RestClient implements IGameLogic {
     }
 
     @Override
-    public Coordinate getSelectedCord() {
-        return logicState.getSelectedCoordinate();
-    }
-
-    @Override
     public BoardCell[][] getBoard() {
         return logicState.getBoard();
     }

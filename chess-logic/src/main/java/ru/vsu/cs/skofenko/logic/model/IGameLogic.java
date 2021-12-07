@@ -11,8 +11,6 @@ public interface IGameLogic{
 
     GameState getGameState();
 
-    Coordinate getSelectedCord();
-
     BoardCell[][] getBoard();
 
     boolean selectPiece(Coordinate cord);

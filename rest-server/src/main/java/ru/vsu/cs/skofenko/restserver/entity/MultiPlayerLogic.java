@@ -45,11 +45,6 @@ public class MultiPlayerLogic implements IGameLogic {
     }
 
     @Override
-    public Coordinate getSelectedCord() {
-        return logic.getNowTurn() == color ? logic.getSelectedCord() : Coordinate.EMPTY_CORD;
-    }
-
-    @Override
     public BoardCell[][] getBoard() {
         BoardCell[][] board = logic.getBoard();
         if (logic.getNowTurn() == color) {
@@ -70,7 +65,7 @@ public class MultiPlayerLogic implements IGameLogic {
         if (logic == null) {
             return null;
         } else {
-            return new LogicState(getNowTurn(), getGameState(), getSelectedCord(), getBoard());
+            return new LogicState(getNowTurn(), getGameState(), getBoard());
         }
     }
 }

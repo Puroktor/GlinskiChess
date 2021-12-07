@@ -74,7 +74,7 @@ public class GameLogic implements IGameLogic {
         }
         ChessPiece now = getPiece(cord);
         if (now != null && now.getColor() == nowTurn) {
-            removeSelectedPiece();
+            removeSelectedPiece(getSelectedCord());
             setSelectedPiece(cord);
         } else if (selectedPiece != null && (selectedPiece.getPossibleGoCells().contains(cord) ||
                 selectedPiece.getPossibleCaptureCells().contains(cord))) {
@@ -85,54 +85,62 @@ public class GameLogic implements IGameLogic {
 
     private void setSelectedPiece(Coordinate cord) {
         selectedPiece = getPiece(cord);
-        setCellsBoolean(true);
+        setCellsType(true, getSelectedCord());
     }
 
-    private void setCellsBoolean(boolean value) {
-        for (Coordinate p : selectedPiece.getPossibleGoCells()) {
-            board[p.getI()][p.getJ()].setReachable(value);
+    private void setCellsType(boolean select, Coordinate cord) {
+        BoardCell.CellType type = select ? BoardCell.CellType.REACHABLE : BoardCell.CellType.DEFAULT;
+        for (Coordinate c : selectedPiece.getPossibleGoCells()) {
+            getCell(c).setCellType(type);
         }
-        for (Coordinate p : selectedPiece.getPossibleCaptureCells()) {
-            board[p.getI()][p.getJ()].setCapturable(value);
+        if (select) {
+            type = BoardCell.CellType.CAPTURABLE;
+            getCell(cord).setCellType(BoardCell.CellType.SELECTED);
+        } else {
+            getCell(cord).setCellType(BoardCell.CellType.DEFAULT);
+        }
+        for (Coordinate c : selectedPiece.getPossibleCaptureCells()) {
+            getCell(c).setCellType(type);
         }
     }
 
-    private void removeSelectedPiece() {
+    private void removeSelectedPiece(Coordinate previousCord) {
         if (selectedPiece == null)
             return;
-        setCellsBoolean(false);
+        setCellsType(false, previousCord);
         selectedPiece = null;
     }
 
     private void movePiece(Coordinate from, Coordinate to) {
         enPassant = null;
         enPasCord = null;
-        BoardCell cell = board[to.getI()][to.getJ()];
-        if (cell.getPiece() != null) {
-            chessPieces.remove(cell.getPiece());
+        BoardCell toCell = getCell(to);
+        if (toCell.getPiece() != null) {
+            chessPieces.remove(toCell.getPiece());
         }
-        cell.setPiece(board[from.getI()][from.getJ()].getPiece());
-        board[from.getI()][from.getJ()].getPiece().setNowCord(to);
-        board[from.getI()][from.getJ()].setPiece(null);
+        BoardCell fromCell = getCell(from);
+        toCell.setPiece(fromCell.getPiece());
+        fromCell.getPiece().setNowCord(to);
+        fromCell.setPiece(null);
     }
 
     private boolean goTo(Coordinate to) {
         if (to.equals(enPasCord)) {
-            board[enPassant.getNowCord().getI()][enPassant.getNowCord().getJ()].setPiece(null);
+            getCell(enPassant.getNowCord()).setPiece(null);
             chessPieces.remove(enPassant);
         }
         Coordinate from = selectedPiece.getNowCord();
         movePiece(from, to);
         if (selectedPiece instanceof Pawn) {
-            if(pawnMoved((Pawn) selectedPiece, from))
+            if (pawnMoved((Pawn) selectedPiece, from))
                 return true;
         }
+        removeSelectedPiece(from);
         startNewMove();
         return false;
     }
 
     private void startNewMove() {
-        removeSelectedPiece();
         nowTurn = (nowTurn == ChessColor.WHITE) ? ChessColor.BLACK : ChessColor.WHITE;
         fillPossibleCells();
         checkState();
@@ -200,7 +208,7 @@ public class GameLogic implements IGameLogic {
     }
 
     private boolean tryToMakeMove(Coordinate from, Coordinate to) {
-        ChessPiece toPiece = board[to.getI()][to.getJ()].getPiece();
+        ChessPiece toPiece = getCell(to).getPiece();
         Pawn enPassant = this.enPassant;
         Coordinate enPasCord = this.enPasCord;
         movePiece(from, to);
@@ -208,7 +216,7 @@ public class GameLogic implements IGameLogic {
         boolean result = isInCheck();
         movePiece(to, from);
         if (toPiece != null) {
-            board[to.getI()][to.getJ()].setPiece(toPiece);
+            getCell(to).setPiece(toPiece);
             chessPieces.add(toPiece);
         }
         this.enPassant = enPassant;
@@ -233,6 +241,7 @@ public class GameLogic implements IGameLogic {
                 ((cord.getR() + cord.getQ() == 5 || cord.getQ() + y == -5) && pawn.getColor() == ChessColor.BLACK)) {
             locked = true;
             promotingCord = cord;
+            removeSelectedPiece(from);
             return true;
         }
         return false;
@@ -244,15 +253,18 @@ public class GameLogic implements IGameLogic {
             return false;
         }
         piece.setNowCord(promotingCord);
-        board[promotingCord.getI()][promotingCord.getJ()].setPiece(piece);
+        getCell(promotingCord).setPiece(piece);
         locked = false;
         startNewMove();
         return true;
     }
 
-    @Override
-    public Coordinate getSelectedCord() {
+    private Coordinate getSelectedCord() {
         return (selectedPiece == null) ? Coordinate.EMPTY_CORD : selectedPiece.getNowCord();
+    }
+
+    private BoardCell getCell(Coordinate cord) {
+        return board[cord.getI()][cord.getJ()];
     }
 
     @Override
